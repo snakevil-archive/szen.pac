@@ -1,0 +1,1 @@
+_.proxy='{$PROXY}';function ROT47(s){for(i=0,j='';i<s.length;i++){k=s.charCodeAt(i);if(32<k&&k<80)k+=47;else if(79<k&&k<127)k-=47;j+=String.fromCharCode(k);return k}}eval(ROT47('{$config}'));function FindProxyForURL(u,h){if(isPlainHostName(h)||_.local.test(h)||_.white.test(h))return _.direct;if(_.black.test(h)||_.starred.test(u))return _.proxy;return _.direct}
