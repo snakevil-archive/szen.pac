@@ -1,4 +1,5 @@
 .*
 !.gitignore
 
+/etc/gfwlist.txt
 /var/cache/*

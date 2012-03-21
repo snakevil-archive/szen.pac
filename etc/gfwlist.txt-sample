@@ -1,0 +1,27 @@
+! Sample file of personal GFW list.
+!
+! For rules detail, read "Write Proxy Rules" [1] please.
+!
+! [1] https://autoproxy.org/en/Rules
+!
+! This file is part of SZEN.PAC.
+!
+! SZEN.PAC is free software: you can redistribute it and/or modify
+! it under the terms of the GNU General Public License as published by
+! the Free Software Foundation, either version 3 of the License, or
+! (at your option) any later version.
+!
+! SZEN.PAC is distributed in the hope that it will be useful,
+! but WITHOUT ANY WARRANTY; without even the implied warranty of
+! MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+! GNU General Public License for more details.
+!
+! You should have received a copy of the GNU General Public License
+! along with SZEN.PAC.  If not, see <http://www.gnu.org/licenses/>.
+!
+! @package   szen.pac
+! @author    Snakevil Zen <zsnakevil@gmail.com>
+! @copyright © 2012 snakevil.in
+! @license   http://www.gnu.org/licenses/gpl.html
+
+! vim: se fenc=utf-8 ff=unix tw=8486:
