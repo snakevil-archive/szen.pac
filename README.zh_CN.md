@@ -26,8 +26,8 @@
 式规范，您可以通过阅读 [巴克斯范式](#EBNF) 以得到完整的理解；也可以直接对比 [范例
 ](#Samples) 快速拼装出符合您需要的地址。
 
-### 巴克斯范式
 <a name="EBNF"></a>
+### 巴克斯范式
 
 ```
 pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".pac"
@@ -45,8 +45,8 @@ proxy-port         =    [ ":" ] 4*5DIGIT
 socks-indicator    =    "!" / "!s" / "!socks"
 ```
 
-### 范例
 <a name="Samples"></a>
+### 范例
 
 #### 简单范例
 
