@@ -1,0 +1,33 @@
+# Sample configuration file for NginX.
+#
+# This file is part of SZEN.PAC.
+#
+# SZEN.PAC is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# SZEN.PAC is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with SZEN.PAC.  If not, see <http://www.gnu.org/licenses/>.
+#
+# @package   szen.pac
+# @author    Snakevil Zen <zsnakevil@gmail.com>
+# @copyright © 2012 snakevil.in
+# @license   http://www.gnu.org/licenses/gpl.html
+
+location ~ ^/szen.*\.pac$ {
+    error_log       /var/log/nginx/szen.pac-error.log;
+
+    gzip            off;
+
+    fastcgi_pass    unix:/var/run/php5-fpm.socket;
+    include         fastcgi_params;
+    fastcgi_param   SCRIPT_FILENAME $document_root/szen.pac/libexec/szen.pac.php;
+}
+
+# vim: se ft=nginx fenc=utf-8 ff=unix tw=120:
