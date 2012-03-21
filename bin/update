@@ -1,0 +1,290 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Updates prepared `proxy.pac' template manually.
+ *
+ * This file is part of SZEN.PAC.
+ *
+ * SZEN.PAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SZEN.PAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SZEN.PAC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package   szen.pac
+ * @author    Snakevil Zen <zsnakevil@gmail.com>
+ * @copyright © 2012 snakevil.in
+ * @license   http://www.gnu.org/licenses/gpl.html
+ */
+
+//error_reporting(0);
+
+chdir(dirname(__FILE__) . '/..');
+
+define('DEBUG', file_exists('on-dev'));
+
+try
+{
+    $a_gfw = parse_gfwlists('etc/gfwlist.txt', 'http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt');
+
+    $config = '$={host:{black:' . merge_hosts($a_gfw['host']['black']) . ',' .
+        'local:' . merge_hosts('local') . ',' .
+        'white:' . merge_hosts($a_gfw['host']['white']) . '},' .
+        'url:{both:' . merge_urls($a_gfw['url']['both']) . ',' .
+        'http:' . merge_urls($a_gfw['url']['http']) . '}}';
+    trace('config: ' . $config, 3);
+    $config = addcslashes(rot47($config), '\'\\');
+
+    $f_pac = 'share/proxy.pac';
+    if (!is_file($f_pac) || !is_readable($f_pac))
+        throw new Exception(sprintf('Template `%s\' access denied.', $f_pac));
+    ob_start();
+    require $f_pac;
+    $s_pac = ob_get_clean();
+    if (!file_put_contents('var/cache/proxy.pac', $s_pac, LOCK_EX))
+        throw new Exception('Failed to write PAC.');
+}
+catch (Exception $ex)
+{
+    $s_msg = basename(__FILE__) . date(': %ymd\THis\Z ') . $ex->getMessage() . PHP_EOL;
+    echo $s_msg;
+    exit(1);
+}
+
+function rot47($clob)
+{
+    settype($clob, 'string');
+    for ($ii = 0, $jj = strlen($clob); $ii < $jj; $ii++)
+    {
+        $kk = ord($clob[$ii]);
+        if (32 < $kk && $kk < 80)
+            $clob[$ii] = chr(47 + $kk);
+        elseif (79 < $kk && $kk < 127)
+            $clob[$ii] = chr($kk - 47);
+    }
+    return $clob;
+}
+
+function merge_hosts($array)
+{
+    settype($array, 'array');
+    return '/(?:^|\.)(?:' . (count($array) ? implode('|', $array) : 'snakevil\.zen') . ')$/i';
+}
+
+function merge_urls($array)
+{
+    settype($array, 'array');
+    return '/(?:' . (count($array) ? implode('|', $array) : 'snakevil\.zen') . ')/i';
+}
+
+function parse_gfwlists($file)
+{
+    $a_files = func_get_args();
+    rsort($a_files);
+    $a_ret = array('host' => array(), 'url' => array());
+    $a_ret['host']['black'] = $a_ret['host']['white'] = $a_ret['url']['both'] = $a_ret['url']['http'] = array();
+    for ($ii = 0, $jj = func_num_args(); $ii < $jj; $ii++)
+        try
+        {
+            $a_gfw = parse_gfwlist($a_files[$ii]);
+            $a_ret['host']['black'] = array_merge($a_ret['host']['black'], $a_gfw['host']['black']);
+            $a_ret['host']['white'] = array_merge($a_ret['host']['white'], $a_gfw['host']['white']);
+            $a_ret['url']['both'] = array_merge($a_ret['url']['both'], $a_gfw['url']['both']);
+            $a_ret['url']['http'] = array_merge($a_ret['url']['http'], $a_gfw['url']['http']);
+        }
+        catch (Exception $ex)
+        {
+            if (1 != $ex->getCode())
+                throw $ex;
+        }
+    return $a_ret;
+}
+
+function parse_gfwlist($file)
+{
+    settype($file, 'string');
+    trace('process: ' . $file, 1);
+    $f_file = stream_is_local($file) ? realpath($file) : sync_gfwlist($file);
+    if (false === $f_file || !is_file($f_file) || !is_readable($f_file))
+        throw new Exception(sprintf('GFWList file `%s\' access denied.', $file), 1);
+    $s_hash = md5_file($f_file, true);
+    $i_time = filemtime($f_file);
+    if (false === $s_hash || false === $i_time)
+        throw new Exception(sprintf('GFWList file `%s\' access denied.', $file), 2);
+    $f_id = 'var/cache/proxy.' . basename(dirname($f_file));
+    $f_data = $f_id . '.json';
+    $f_hash = $f_id . '.md5';
+    if (file_exists($f_data))
+    {
+        if (is_file($f_data) && is_readable($f_data) && is_writable($f_data) &&
+            is_file($f_hash) && is_readable($f_hash) && is_writable($f_hash))
+        {
+            if (filemtime($f_data) == $i_time &&
+                file_get_contents($f_hash) == $s_hash)
+            {
+                $m_data = json_decode(file_get_contents($f_data), true);
+                if (NULL !== $m_data)
+                {
+                    trace('cache used', 1);
+                    return $m_data;
+                }
+            }
+        }
+        else
+            throw new Exception(sprintf('Broken cache for `%s\'.', $file), 3);
+    }
+    trace('fresh data used', 1);
+    $a_data = parse_gfwlist_($f_file);
+    if (false === $a_data)
+        throw new Exception(sprintf('Failed to parse `%s\'.', $file), 4);
+    if (!file_exists('var/cache') && !mkdir('var/cache', 0755) ||
+        false === file_put_contents($f_data, json_encode($a_data), LOCK_EX) ||
+        false === file_put_contents($f_hash, $s_hash, LOCK_EX) ||
+        !touch($f_data, $i_time))
+        throw new Exception(sprintf('Failed to cache `%s\'.', $file), 5);
+    return $a_data;
+}
+
+function parse_gfwlist_($file)
+{
+    settype($file, 'string');
+    $s_data = file_get_contents($file);
+    if (false === $s_data)
+    {
+        trace('read failed', 2);
+        return false;
+    }
+    $a_lines = explode("\n", trim($s_data));
+    $a_ret = array('host' => array(), 'url' => array());
+    $a_ret['host']['black'] = $a_ret['host']['white'] = $a_ret['url']['both'] = $a_ret['url']['http'] = array();
+    for ($ii = 1, $jj = count($a_lines); $ii < $jj; $ii++)
+    {
+        $a_lines[$ii] = trim($a_lines[$ii]);
+        if ('' == $a_lines[$ii] || '!' == $a_lines[$ii][0])
+            continue;
+        if ('||' == substr($a_lines[$ii], 0, 2))
+        {
+            $s_node = sh2reg(rtrim(substr($a_lines[$ii], 2), '/'));
+            $a_ret['host']['black'][$s_node] = $s_node;
+        }
+        elseif ('@@||' == substr($a_lines[$ii], 0, 4))
+        {
+            $s_node = sh2reg(rtrim(substr($a_lines[$ii], 4), '/'));
+            $a_ret['host']['white'][$s_node] = $s_node;
+        }
+        elseif ('|' == $a_lines[$ii][0])
+        {
+            $s_node = '^' . sh2reg(substr($a_lines[$ii], 1));
+            $a_ret['url']['both'][$s_node] = $s_node;
+        }
+        elseif ('/' == $a_lines[$ii][0] && '/' == substr($a_lines[$ii], -1))
+        {
+            $s_node = substr($a_lines[$ii], 1, -1);
+            $a_ret['url']['both'][$s_node] = $s_node;
+        }
+        else
+        {
+            $s_node = sh2reg($a_lines[$ii]);
+            $a_ret['url']['http'][$s_node] = $s_node;
+        }
+    }
+    return $a_ret;
+}
+
+function sync_gfwlist($uri)
+{
+    settype($uri, 'string');
+    trace('sync: ' . $uri, 2);
+    $a_parts = parse_url($uri);
+    if ('http' != $a_parts['scheme'] && 'https' != $a_parts['scheme'])
+        throw new Exception(sprintf('Unsupported protocol `%s\' for remote GFW lists.', $a_parts['scheme']), 11);
+    $f_id = 'var/cache/gfwlist.' . $a_parts['host'];
+    $f_cache = $f_id . '.txt';
+    $f_etag = $f_id . '.etag';
+    $h_curl = curl_init($uri);
+    curl_setopt_array($h_curl, array(CURLOPT_ENCODING => '',
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HEADER => true,
+            CURLINFO_HEADER_OUT => true));
+    if (file_exists($f_cache))
+    {
+        trace('checks modified-time', 3);
+        if (is_file($f_cache) && is_readable($f_cache))
+            curl_setopt_array($h_curl, array(CURLOPT_TIMEVALUE => filemtime($f_cache),
+                    CURLOPT_TIMECONDITION => CURL_TIMECOND_IFMODSINCE));
+        else
+            throw new Exception(sprintf('Broken cache for `%s\'.', $uri), 12);
+    }
+    if (file_exists($f_etag))
+    {
+        trace('checks etag', 3);
+        $s_etag = false;
+        if (is_file($f_etag) && is_readable($f_etag))
+            $s_etag = file_get_contents($f_etag);
+        if (false === $s_etag)
+            throw new Exception(sprintf('Broken cache for `%s\'.', $uri), 12);
+        curl_setopt($h_curl, CURLOPT_HTTPHEADER, array("If-None-Match: {$s_etag}"));
+    }
+    $s_resp = curl_exec($h_curl);
+    $i_code = curl_getinfo($h_curl, CURLINFO_HTTP_CODE);
+    trace('http status: ' . $i_code, 3);
+    trace('http sent headers: ' . curl_getinfo($h_curl, CURLINFO_HEADER_OUT), 3);
+    curl_close($h_curl);
+    $i_pos = strpos($s_resp, "\r\n\r\n");
+    if (false == $s_resp || false == $i_pos || 200 != $i_code && 304 != $i_code)
+        throw new Exception(sprintf('Failed to fetch `%s\'.', $uri), 13);
+    if (304 == $i_code)
+    {
+        trace('synced', 3);
+        return $f_cache;
+    }
+    $s_body = base64_decode(trim(substr($s_resp, 4 + $i_pos)));
+    if (false === $s_body)
+        throw new Exception(sprintf('Interrupted data of `%s\'.', $uri), 14);
+    $a_lines = explode("\r\n", preg_replace('@/\r\n[\t ]+/@', ' ', substr($s_resp, 0, $i_pos)));
+    $a_heads = array();
+    for ($ii = 1, $jj = count($a_lines); $ii < $jj; $ii++)
+    {
+        $kk = explode(': ', $a_lines[$ii]);
+        $s_key = strtoupper(trim(array_shift($kk)));
+        $s_value = trim(implode(': ', $kk));
+        if (array_key_exists($s_key, $a_heads))
+        {
+            if (is_array($a_heads[$s_key]))
+                $a_heads[$s_key][] = $s_value;
+            else
+                $a_heads[$s_key] = array($a_heads[$s_key], $s_value);
+        }
+        else
+            $a_heads[$s_key] = $s_value;
+    }
+    if (!file_exists('var/cache') && !mkdir('var/cache', 0755) ||
+        !file_put_contents($f_cache, trim($s_body), LOCK_EX) ||
+        !touch($f_cache, strtotime($a_heads['LAST-MODIFIED'])))
+        throw new Exception(sprintf('Failed to sync `%s\'.', $file), 15);
+    if (isset($a_heads['ETAG']))
+        if (!file_put_contents($f_etag, $a_heads['ETAG'], LOCK_EX))
+            throw new Exception(sprintf('Failed to sync `%s\'.', $file), 15);
+    trace('updated', 3);
+    return $f_cache;
+}
+
+function sh2reg($string)
+{
+    settype($string, 'string');
+    return str_replace(array('.', '?', '*', '/'), array('\\.', '\\?', '.*', '\\/'), $string);
+}
+
+function trace($msg, $on_lv = 1)
+{
+    DEBUG && file_put_contents('php://stderr', $msg . PHP_EOL);
+}
+
+# vim:se ft=php ff=unix fenc=utf-8 tw=120:
