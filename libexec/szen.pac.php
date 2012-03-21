@@ -70,7 +70,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
 $a_opts = array();
 $s_opre = '@(?:/)[^\-/]+' .
     '(?:-(?:(\d{1,3}(?:\.\d{1,3}){3})|\.?((?:\d{1,3}\.)?\d{1,3}))?(?::?(\d{4,5}))?)?' .
-    '(?:(!)(?:|s|socks))?\.pac$@';
+    '(?:(!)(?:|s|socks))?\.pac$@U';
 if (!preg_match($s_opre, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), $a_opts))
 {
     header('Status: 400 Bad Request', true, 400);
@@ -81,10 +81,15 @@ while (5 > count($a_opts))
 array_shift($a_opts);
 if ('' == $a_opts[0])
 {
-    $a_opts[1] = explode('.', $a_opts[1]);
-    $a_tmp = explode('.', $_SERVER['REMOTE_ADDR']);
-    $a_opts[1] = implode('.', array_merge(array_slice($a_tmp, 0, 4 - count($a_opts[1])), $a_opts[1]));
-    $a_tmp = NULL;
+    if ('' == $a_opts[1])
+        $a_opts[1] = '127.0.0.1';
+    else
+    {
+        $a_opts[1] = explode('.', $a_opts[1]);
+        $a_tmp = explode('.', $_SERVER['REMOTE_ADDR']);
+        $a_opts[1] = implode('.', array_merge(array_slice($a_tmp, 0, 4 - count($a_opts[1])), $a_opts[1]));
+        $a_tmp = NULL;
+    }
 }
 else
     $a_opts[1] = $a_opts[0];
