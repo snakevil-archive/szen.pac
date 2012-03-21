@@ -32,24 +32,7 @@ define('DEBUG', file_exists('on-dev'));
 
 try
 {
-    $a_gfw = parse_gfwlists('etc/gfwlist.txt', 'http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt');
-
-    $config = '$={host:{black:' . merge_hosts($a_gfw['host']['black']) . ',' .
-        'local:' . merge_hosts('local') . ',' .
-        'white:' . merge_hosts($a_gfw['host']['white']) . '},' .
-        'url:{both:' . merge_urls($a_gfw['url']['both']) . ',' .
-        'http:' . merge_urls($a_gfw['url']['http']) . '}}';
-    trace('config: ' . $config, 3);
-    $config = addcslashes(rot47($config), '\'\\');
-
-    $f_pac = 'share/proxy.pac';
-    if (!is_file($f_pac) || !is_readable($f_pac))
-        throw new Exception(sprintf('Template `%s\' access denied.', $f_pac));
-    ob_start();
-    require $f_pac;
-    $s_pac = ob_get_clean();
-    if (!file_put_contents('var/cache/proxy.pac', $s_pac, LOCK_EX))
-        throw new Exception('Failed to write PAC.');
+    parse_gfwlists('etc/gfwlist.txt', 'http://autoproxy-gfwlist.googlecode.com/svn/trunk/gfwlist.txt');
 }
 catch (Exception $ex)
 {
@@ -88,30 +71,68 @@ function parse_gfwlists($file)
 {
     $a_files = func_get_args();
     rsort($a_files);
-    $a_ret = array('host' => array(), 'url' => array());
-    $a_ret['host']['black'] = $a_ret['host']['white'] = $a_ret['url']['both'] = $a_ret['url']['http'] = array();
+    $f_pac = 'var/cache/proxy.pac';
+    $f_hash = 'var/cache/proxy.md5';
     for ($ii = 0, $jj = func_num_args(); $ii < $jj; $ii++)
+        if (!stream_is_local($a_files[$ii]))
+            $a_files[$ii] = sync_gfwlist($a_files[$ii]);
+    if (file_exists($f_pac))
+    {
+        if (is_file($f_pac) && is_readable($f_pac) && is_writable($f_pac) &&
+            is_file($f_hash) && is_readable($f_hash) && is_writable($f_hash))
+        {
+            $i_time1 = $i_time2 = filemtime($f_pac);
+            for ($ii = 0; $ii < $jj; $ii++)
+                if (file_exists($a_files[$ii]))
+                    $i_time2 = max($i_time2, filemtime($a_files[$ii]));
+            if ($i_time1 >= $i_time2)
+                return;
+        }
+        else
+            throw new Exception('Interrupted cache data.');
+    }
+    $a_all = array('host' => array(), 'url' => array());
+    $a_all['host']['black'] = $a_all['host']['white'] = $a_all['url']['both'] = $a_all['url']['http'] = array();
+    for ($ii = 0; $ii < $jj; $ii++)
         try
         {
             $a_gfw = parse_gfwlist($a_files[$ii]);
-            $a_ret['host']['black'] = array_merge($a_ret['host']['black'], $a_gfw['host']['black']);
-            $a_ret['host']['white'] = array_merge($a_ret['host']['white'], $a_gfw['host']['white']);
-            $a_ret['url']['both'] = array_merge($a_ret['url']['both'], $a_gfw['url']['both']);
-            $a_ret['url']['http'] = array_merge($a_ret['url']['http'], $a_gfw['url']['http']);
+            $a_all['host']['black'] = array_merge($a_all['host']['black'], $a_gfw['host']['black']);
+            $a_all['host']['white'] = array_merge($a_all['host']['white'], $a_gfw['host']['white']);
+            $a_all['url']['both'] = array_merge($a_all['url']['both'], $a_gfw['url']['both']);
+            $a_all['url']['http'] = array_merge($a_all['url']['http'], $a_gfw['url']['http']);
         }
         catch (Exception $ex)
         {
             if (1 != $ex->getCode())
                 throw $ex;
         }
-    return $a_ret;
+    $config = '$={host:{black:' . merge_hosts($a_all['host']['black']) . ',' .
+        'local:' . merge_hosts('local') . ',' .
+        'white:' . merge_hosts($a_all['host']['white']) . '},' .
+        'url:{both:' . merge_urls($a_all['url']['both']) . ',' .
+        'http:' . merge_urls($a_all['url']['http']) . '}}';
+    trace('config: ' . $config, 3);
+    $config = addcslashes(rot47($config), '\'\\');
+
+    $f_tpl = 'share/proxy.pac';
+    if (!is_file($f_tpl) || !is_readable($f_tpl))
+        throw new Exception(sprintf('Template `%s\' access denied.', $f_pac));
+    ob_start();
+    require $f_tpl;
+    $s_pac = ob_get_clean();
+    if (!file_put_contents($f_pac, $s_pac, LOCK_EX))
+        throw new Exception('Failed to write PAC.');
+    if (!file_put_contents($f_hash, md5($s_pac), LOCK_EX))
+        throw new Exception('Failed to write PAC ETag.');
+    return;
 }
 
 function parse_gfwlist($file)
 {
     settype($file, 'string');
     trace('process: ' . $file, 1);
-    $f_file = stream_is_local($file) ? realpath($file) : sync_gfwlist($file);
+    $f_file = realpath($file);
     if (false === $f_file || !is_file($f_file) || !is_readable($f_file))
         throw new Exception(sprintf('GFWList file `%s\' access denied.', $file), 1);
     $s_hash = md5_file($f_file, true);
@@ -144,7 +165,7 @@ function parse_gfwlist($file)
     $a_data = parse_gfwlist_($f_file);
     if (false === $a_data)
         throw new Exception(sprintf('Failed to parse `%s\'.', $file), 4);
-    if (!file_exists('var/cache') && !mkdir('var/cache', 0755) ||
+    if (!file_exists('var/cache') && !mkdir('var/cache', 0755, true) ||
         false === file_put_contents($f_data, json_encode($a_data), LOCK_EX) ||
         false === file_put_contents($f_hash, $s_hash, LOCK_EX) ||
         !touch($f_data, $i_time))
@@ -265,7 +286,7 @@ function sync_gfwlist($uri)
         else
             $a_heads[$s_key] = $s_value;
     }
-    if (!file_exists('var/cache') && !mkdir('var/cache', 0755) ||
+    if (!file_exists('var/cache') && !mkdir('var/cache', 0755, true) ||
         !file_put_contents($f_cache, trim($s_body), LOCK_EX) ||
         !touch($f_cache, strtotime($a_heads['LAST-MODIFIED'])))
         throw new Exception(sprintf('Failed to sync `%s\'.', $file), 15);
