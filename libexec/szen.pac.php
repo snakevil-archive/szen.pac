@@ -106,6 +106,10 @@ $a_opts = array_combine(array('host', 'port', 'type'), $a_opts);
 
 if ('SOCKS' == $a_opts['type'])
 {
+    if (strpos($_SERVER['HTTP_USER_AGENT'], ' Chrome/') ||
+        strpos($_SERVER['HTTP_USER_AGENT'], ' Chromium/') ||
+        strpos($_SERVER['HTTP_USER_AGENT'], ' Firefox/'))
+        $a_opts['type'] = 'SOCKS5';
 }
 
 // Normally responds. {{{1
