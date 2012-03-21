@@ -185,10 +185,11 @@ function parse_gfwlist_($file)
     $a_lines = explode("\n", trim($s_data));
     $a_ret = array('host' => array(), 'url' => array());
     $a_ret['host']['black'] = $a_ret['host']['white'] = $a_ret['url']['both'] = $a_ret['url']['http'] = array();
-    for ($ii = 1, $jj = count($a_lines); $ii < $jj; $ii++)
+    for ($ii = 0, $jj = count($a_lines); $ii < $jj; $ii++)
     {
         $a_lines[$ii] = trim($a_lines[$ii]);
-        if ('' == $a_lines[$ii] || '!' == $a_lines[$ii][0])
+        if ('' == $a_lines[$ii] || '!' == $a_lines[$ii][0] ||
+            '[' == $a_lines[$ii][0] && ']' == substr($a_lines[$ii], -1))
             continue;
         if ('||' == substr($a_lines[$ii], 0, 2))
         {
