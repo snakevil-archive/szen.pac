@@ -11,7 +11,7 @@
 * 完美支持 Chrome/Chromium 和 Firefox 的「远程DNS解析」功能
 	* 仅限使用 Socks5 代理
 * 极限压缩 PAC 占用的流量
-	* 使用 ROT47 算法加密
+	* 使用 [ROT47][ROT13] 算法加密
 		* 比 [AutoProxy2PAC－全平台智能代理][autoproxy2pac] 节省近 35% 流量
 	* 自动采用 [DEFLATE][] / [Gzip][] 压缩文件
 		* 比未压缩时节省近 75% 流量
@@ -85,6 +85,7 @@ socks-indicator    =    "!" / "!s" / "!socks"
 使用同 C 段网络（假例：192.168.0.0/24）的 **192.168.0.123 : 8080** 的 **SOCKS**
 代理。
 
+[ROT13]: http://zh.wikipedia.org/wiki/ROT13
 [autoproxy2pac]: https://autoproxy2pac.appspot.com/
 [DEFLATE]: http://zh.wikipedia.org/wiki/DEFLATE
 [Gzip]: http://zh.wikipedia.org/wiki/Gzip

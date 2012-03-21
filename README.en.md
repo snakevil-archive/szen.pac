@@ -11,9 +11,8 @@
 * Supports "Remote DNS Lookup" for Chrome/Chromium and Firefox
 	* For Socks5 proxy ONLY
 * Reduces quota costing by PAC
-	* ROT47
+	* [ROT47][ROT13]
 		* 35% OFF from [AutoProxy2PAC][autoproxy2pac]
-	* 自动采用 [DEFLATE][] / [Gzip][] 压缩文件
 	* [DEFLATE][] / [Gzip][]
 		* 75% OFF from uncompressed file
 
@@ -85,6 +84,7 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 **SOCKS** proxy from **192.168.0.123 : 8080** (LAN: 192.168.0.0/24) used.
 
+[ROT13]: http://en.wikipedia.org/wiki/ROT13
 [autoproxy2pac]: https://autoproxy2pac.appspot.com/
 [DEFLATE]: http://en.wikipedia.org/wiki/DEFLATE
 [Gzip]: http://en.wikipedia.org/wiki/Gzip
