@@ -112,16 +112,51 @@ if ('SOCKS' == $a_opts['type'])
         $a_opts['type'] = 'SOCKS5';
 }
 
+// Prepares response blob. {{{1
+
+$s__ = file_get_contents($f_pac);
+if (false == $s__)
+{
+    header('Status: 500 Internal Server Error', true, 500);
+    exit();
+}
+$s__ = "_='{$a_opts['type']} {$a_opts['host']}:{$a_opts['port']}';{$s__}";
+ob_end_clean();
+if (isset($_SERVER['HTTP_ACCEPT_ENCODING']))
+{
+    $_SERVER['HTTP_ACCEPT_ENCODING'] = '@ ' .
+        preg_replace(array('@;q=0(?:\.0{,3})@', '@;q=(?:1(?:\.0{,3})?|0\.\d{,3})@'), array(';q=0', ''),
+            str_replace(array(' ', "\t", ','), array('', '', ' '), $_SERVER['HTTP_ACCEPT_ENCODING'])) .
+        ' ';
+    $b_gz = false;
+    if (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], ' deflate '))
+    {
+        $b_gz = true;
+        $s__ = gzdeflate($s__, 9);
+        header('Content-Length: ' . strlen($s__));
+        header('Content-Encoding: deflate');
+    }
+    elseif (strpos($_SERVER['HTTP_ACCEPT_ENCODING'], ' gzip ') || strpos($_SERVER['HTTP_ACCEPT_ENCODING'], ' x-gzip '))
+    {
+        $b_gz = true;
+        $s__ = gzencode($s__, 9);
+        header('Content-Length: ' . strlen($s__));
+        header('Content-Encoding: gzip');
+    }
+    if ($b_gz)
+    {
+        ini_set('zlib.output_compression', false);
+        ini_set('zlib.output_handler', '');
+    }
+}
+
 // Normally responds. {{{1
 
-$s__ = "_='{$a_opts['type']} {$a_opts['host']}:{$a_opts['port']}';";
 header('Content-Type: application/x-ns-proxy-autoconfig');
-header('Content-Length: ' . (strlen($s__) + filesize($f_pac)));
 header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $i_time));
 if ('' != $s_etag)
     header('ETag: ' . $s_etag);
 header("Content-Disposition: attachment; filename=\"szen-{$a_opts['type']}_{$a_opts['host']}:{$a_opts['port']}.pac\"");
 print($s__);
-readfile($f_pac);
 
 # vim:se ft=php ff=unix fenc=utf-8 tw=120:
