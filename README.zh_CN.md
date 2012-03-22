@@ -34,9 +34,7 @@ pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".pac"
 
 proxy-address      =    "-" [ proxy-host ] [ proxy-port ]
 
-proxy-host         =    ip / subnet-ip
-
-ip                 =    1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT
+proxy-host         =    1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT
 
 subnet-ip          =    [ "." ] 1*3DIGIT [ "." 1*3DIGIT ]
 
@@ -54,11 +52,6 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 使用 **127.0.0.1 : 8080** 的 **HTTP** 代理；
 
-> /szen-123.pac
-> /szen-.123.pac
-
-使用同 C 段网络（假例：192.168.0.0/24）的 **192.168.0.123 : 8080** 的 **HTTP** 代理；
-
 > /szen-1234.pac
 > /szen-:1234.pac
 
@@ -75,15 +68,9 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 #### 组合范例
 
-> /szen-12.34:5678.pac
+> /szen-10.11.12.13:1415!.pac
 
-使用同 B 段网络（假例：192.168.0.0/16）的 **192.168.12.34 : 5678** 的 **HTTP**
-代理；
-
-> /szen-123!.pac
-
-使用同 C 段网络（假例：192.168.0.0/24）的 **192.168.0.123 : 8080** 的 **SOCKS**
-代理。
+使用 **10.11.12.13 : 1415** 的 **SOCKS** 代理。
 
 [ROT13]: http://zh.wikipedia.org/wiki/ROT13
 [autoproxy2pac]: https://autoproxy2pac.appspot.com/

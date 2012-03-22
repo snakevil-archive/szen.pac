@@ -35,9 +35,7 @@ pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".pac"
 
 proxy-address      =    "-" [ proxy-host ] [ proxy-port ]
 
-proxy-host         =    ip / subnet-ip
-
-ip                 =    1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT
+proxy-host         =    1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT "." 1*3DIGIT
 
 subnet-ip          =    [ "." ] 1*3DIGIT [ "." 1*3DIGIT ]
 
@@ -55,11 +53,6 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 **HTTP** proxy from **127.0.0.1 : 8080** used;
 
-> /szen-123.pac
-> /szen-.123.pac
-
-**HTTP** proxy from **192.168.0.123 : 8080** (LAN: 192.168.0.0/24) used;
-
 > /szen-1234.pac
 > /szen-:1234.pac
 
@@ -76,13 +69,9 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 #### COMPLEX
 
-> /szen-12.34:5678.pac
+> /szen-10.11.12.13:1415!.pac
 
-**HTTP** proxy from **192.168.12.34 : 5678** (LAN: 192.168.0.0/16) used;
-
-> /szen-123!.pac
-
-**SOCKS** proxy from **192.168.0.123 : 8080** (LAN: 192.168.0.0/24) used.
+**SOCKS** proxy from **10.11.12.13 : 1415** used.
 
 [ROT13]: http://en.wikipedia.org/wiki/ROT13
 [autoproxy2pac]: https://autoproxy2pac.appspot.com/
