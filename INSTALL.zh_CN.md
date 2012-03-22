@@ -18,7 +18,16 @@
 git clone git://github.com/snakevil/szen.pac.git
 ```
 
-### B. 创建定时器
+### B. 权限调整
+
+```shell
+mkdir -p *『SZEN.PAC 目录路径』*/var/cache
+chmod -R g+w,g+s *『SZEN.PAC 目录路径』*/var
+```
+
+【提示】使www-data帐号具备`var`目录的写权限。
+
+### C. 创建定时器
 
 ```shell
 crontab -e
@@ -28,7 +37,7 @@ crontab -e
 
 **【注意】** 建议执行间隔时间设置为30分钟，以确保 GFWList 的实时性。
 
-### C. 创建站点目录
+### D. 创建站点目录
 
 ```shell
 vim *『NginX 配置目录路径』*/nginx.conf

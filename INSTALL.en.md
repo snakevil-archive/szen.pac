@@ -18,7 +18,16 @@ DESIGNED for Linux / PHP. NginX / PHP-FPM RECOMMENDED!
 git clone git://github.com/snakevil/szen.pac.git
 ```
 
-### B. Make New Cron Job
+### B. Grant Permissions
+
+```shell
+mkdir -p *<SZEN.PAC Directory>*/var/cache
+chmod -R g+w,g+s *<SZEN.PAC Directory>*/var
+```
+
+*TIP* To allow www-data account writing in `var` folder.
+
+### C. Make New Cron Job
 
 ```shell
 crontab -e
@@ -29,7 +38,7 @@ crontab -e
 **NOTICE** Its highly recommended to set the interval time to 30 minutes, for
 the accuracy of GFWList.
 
-### C. Serve Location
+### D. Serve Location
 
 ```shell
 vim *<NginX Config Directory>*/nginx.conf
