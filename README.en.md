@@ -1,4 +1,12 @@
-# SZen.PAC
+	    o__ __o    _\__o__ __o/                               o__ __o        o           o__ __o
+	   /v     v\        v    |/                              <|     v\      <|>         /v     v\
+	  />       <\           /                                / \     <\     / \        />       <\
+	 _\o____              o/      o__  __o   \o__ __o        \o/     o/   o/   \o    o/
+	      \_\__o__       /v      /v      |>   |     |>        |__  _<|/  <|__ __|>  <|
+	            \       />      />      //   / \   / \        |          /       \   \\
+	  \         /     o/        \o    o/     \o/   \o/   o   <o>       o/         \o   \         /
+	   o       o     /v          v\  /v __o   |     |   <|>   |       /v           v\   o       o
+	   <\__ __/>    />  _\o__/_   <\/> __/>  / \   / \  < >  / \     />             <\  <\__ __/>
 
 *A GFWList based, customize online PAC service.*
 
@@ -47,7 +55,7 @@ socks-indicator    =    "!" / "!s" / "!socks"
 <a name="Samples"></a>
 ### SAMPLES
 
-#### SIMPLE
+### a) SIMPLE
 
 > /szen.pac
 
@@ -67,7 +75,7 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 **SOCKS** proxy from **127.0.0.1 : 8080** used.
 
-#### COMPLEX
+### b) COMPLEX
 
 > /szen-10.11.12.13:1415!.pac
 
