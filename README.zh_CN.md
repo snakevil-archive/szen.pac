@@ -24,6 +24,8 @@
 	* 自动采用 [DEFLATE][] / [Gzip][] 压缩文件
 		* 比未压缩时节省近 75% 流量
 
+![数据流图](https://github.com/snakevil/szen.pac/raw/master/share/doc/DFD.png)
+
 ## 安装
 
 *相关的环境、需求及步骤详情请查阅 **[安装][INSTALL]** 文档。*

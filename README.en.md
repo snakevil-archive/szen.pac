@@ -24,6 +24,8 @@
 	* [DEFLATE][] / [Gzip][]
 		* 75% OFF from uncompressed file
 
+![Data Flow Diagram](https://github.com/snakevil/szen.pac/raw/master/share/doc/DFD.png)
+
 ## INSTALL
 
 *For more details about environment, requirements and instructions, PLEASE read
