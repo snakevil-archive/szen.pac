@@ -1,0 +1,64 @@
+#!/usr/bin/env js -PU
+/**
+ * Tests specified URL whether blocked.
+ *
+ * This file is part of SZEN.PAC.
+ *
+ * SZEN.PAC is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * SZEN.PAC is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with SZEN.PAC.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * @package   szen.pac
+ * @author    Snakevil Zen <zsnakevil@gmail.com>
+ * @copyright © 2012 snakevil.in
+ * @license   http://www.gnu.org/licenses/gpl.html
+ */
+
+if (!arguments.length) {
+    print('Usage: test <URL>');
+    quit();
+}
+
+url = arguments[0];
+
+_ = 'PROXY';
+
+load((function() {
+    var i = environment._.lastIndexOf('/'),
+        j = '';
+    if (-1 == i)
+        j = '.';
+    else
+        j = environment._.substring(0,i);
+    return j + '/../var/cache/proxy.pac';
+})());
+
+host = (function() {
+    var i = url.indexOf('://');
+    if (-1 == i)
+        return '';
+    i += 3;
+    var j = url.indexOf('/', i);
+    if (-1 == j)
+        return url.substr(i);
+    return url.substring(i, j);
+})();
+
+proxy = FindProxyForURL(url, host);
+print('> as ' + proxy);
+
+function isPlainHostName(host)
+{
+    return -1 == host.indexOf('.');
+}
+
+// vim: se ft=javascript fenc=utf-8 ff=unix tw=120:
