@@ -113,14 +113,16 @@ function parse_gfwlists($file)
         'url:{both:' . merge_urls($a_all['url']['both']) . ',' .
         'http:' . merge_urls($a_all['url']['http']) . '}}';
     trace('config: ' . $config, 3);
-    $config = addcslashes(rot47($config), '\'\\');
 
+    $f_rot = 'share/rot47.js';
     $f_tpl = 'share/proxy.pac';
+    if (!is_file($f_rot) || !is_readable($f_rot))
+        throw new Exception(sprintf('Template `%s\' access denied.', $f_rot));
     if (!is_file($f_tpl) || !is_readable($f_tpl))
-        throw new Exception(sprintf('Template `%s\' access denied.', $f_pac));
+        throw new Exception(sprintf('Template `%s\' access denied.', $f_tpl));
     ob_start();
     require $f_tpl;
-    $s_pac = ob_get_clean();
+    $s_pac = trim(file_get_contents($f_rot)) . 'eval($$(\'' . addcslashes(rot47(trim(ob_get_clean())), '\'\\') . "'))";
     if (!file_put_contents($f_pac, $s_pac, LOCK_EX))
         throw new Exception('Failed to write PAC.');
     if (!file_put_contents($f_hash, md5($s_pac), LOCK_EX))

@@ -152,7 +152,7 @@ if (isset($_SERVER['HTTP_ACCEPT_ENCODING']))
 
 // Normally responds. {{{1
 
-header('Content-Type: application/x-ns-proxy-autoconfig');
+//header('Content-Type: application/x-ns-proxy-autoconfig');
 header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $i_time));
 if ('' != $s_etag)
     header('ETag: ' . $s_etag);
