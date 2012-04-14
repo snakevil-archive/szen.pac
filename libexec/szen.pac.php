@@ -23,7 +23,7 @@
  * @license   http://www.gnu.org/licenses/gpl.html
  */
 
-//error_reporting(0);
+error_reporting(0);
 
 chdir(dirname(__FILE__) . '/..');
 
@@ -39,7 +39,7 @@ if (is_file($f_pac) && is_readable($f_pac))
 else
 {
     header('Status: 503 Service Unavailable', true, 503);
-    exit();
+    my_exit(1);
 }
 
 if (is_file($f_etag) && is_readable($f_etag))
@@ -61,7 +61,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
         header('Status: 304 Not Modified', true, 304);
         if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && '' != $s_etag)
             header('ETag: ' . $s_etag, true, 304);
-        exit();
+        my_exit(2);
     }
 }
 
@@ -74,7 +74,7 @@ $s_opre = '@(?:/)[^\-/]+' .
 if (!preg_match($s_opre, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), $a_opts))
 {
     header('Status: 400 Bad Request', true, 400);
-    exit();
+    my_exit(3);
 }
 while (5 > count($a_opts))
     $a_opts[] = '';
@@ -118,7 +118,7 @@ $s__ = file_get_contents($f_pac);
 if (false == $s__)
 {
     header('Status: 500 Internal Server Error', true, 500);
-    exit();
+    my_exit(4);
 }
 $s__ = "_='{$a_opts['type']} {$a_opts['host']}:{$a_opts['port']}';{$s__}";
 ob_end_clean();
@@ -158,5 +158,18 @@ if ('' != $s_etag)
     header('ETag: ' . $s_etag);
 header("Content-Disposition: attachment; filename=\"szen-{$a_opts['type']}_{$a_opts['host']}:{$a_opts['port']}.pac\"");
 print($s__);
+my_exit();
+
+// Logs. {{{1
+function my_exit($code = 0)
+{
+    settype($code, 'int');
+    $code %= 256;
+    if (0 > $code)
+        $code += 256;
+    @error_log(date('%r') . "\t${code}\t${_SERVER['REMOTE_ADDR']}\t${_SERVER['HTTP_USER_AGENT'}\n", 3,
+        'var/access.log');
+    exit();
+}
 
 # vim:se ft=php ff=unix fenc=utf-8 tw=120:
