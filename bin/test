@@ -1,4 +1,4 @@
-#!/usr/bin/env js -PU
+#!/usr/bin/env js
 /**
  * Tests specified URL whether blocked.
  *
