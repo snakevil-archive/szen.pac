@@ -167,7 +167,7 @@ function my_exit($code = 0)
     $code %= 256;
     if (0 > $code)
         $code += 256;
-    @error_log(date('%r') . "\t${code}\t${_SERVER['REMOTE_ADDR']}\t${_SERVER['HTTP_USER_AGENT'}\n", 3,
+    @error_log(date('r') . "\t${code}\t${_SERVER['REMOTE_ADDR']}\t${_SERVER['HTTP_USER_AGENT']}\n", 3,
         'var/access.log');
     exit();
 }
