@@ -70,7 +70,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
 $a_opts = array();
 $s_opre = '@(?:/)[^\-/]+' .
     '(?:-(?:(\d{1,3}(?:\.\d{1,3}){3})|\.?((?:\d{1,3}\.)?\d{1,3}))?(?::?(\d{4,5}))?)?' .
-    '(?:(!)(?:|s|socks))?\.pac$@U';
+    '(?:(!)(?:|s|socks))?\.\w+$@U';
 if (!preg_match($s_opre, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), $a_opts))
 {
     header('Status: 400 Bad Request', true, 400);
