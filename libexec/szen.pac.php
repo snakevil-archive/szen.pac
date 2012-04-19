@@ -39,7 +39,7 @@ if (is_file($f_pac) && is_readable($f_pac))
 else
 {
     header('Status: 503 Service Unavailable', true, 503);
-    my_exit(1);
+    my_exit(503);
 }
 
 if (is_file($f_etag) && is_readable($f_etag))
@@ -61,7 +61,7 @@ if (isset($_SERVER['HTTP_IF_MODIFIED_SINCE']) || isset($_SERVER['HTTP_IF_NONE_MA
         header('Status: 304 Not Modified', true, 304);
         if (isset($_SERVER['HTTP_IF_NONE_MATCH']) && '' != $s_etag)
             header('ETag: ' . $s_etag, true, 304);
-        my_exit(2);
+        my_exit(304);
     }
 }
 
@@ -74,7 +74,7 @@ $s_opre = '@(?:/)[^\-/]+' .
 if (!preg_match($s_opre, parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), $a_opts))
 {
     header('Status: 400 Bad Request', true, 400);
-    my_exit(3);
+    my_exit(400);
 }
 while (5 > count($a_opts))
     $a_opts[] = '';
@@ -118,7 +118,7 @@ $s__ = file_get_contents($f_pac);
 if (false == $s__)
 {
     header('Status: 500 Internal Server Error', true, 500);
-    my_exit(4);
+    my_exit(500);
 }
 $s__ = "_='{$a_opts['type']} {$a_opts['host']}:{$a_opts['port']}';{$s__}";
 ob_end_clean();
@@ -162,14 +162,25 @@ print($s__);
 my_exit();
 
 // Logs. {{{1
-function my_exit($code = 0)
+function my_exit($code = 200)
 {
     settype($code, 'int');
-    $code %= 256;
-    if (0 > $code)
-        $code += 256;
-    @error_log(date('r') . "\t${code}\t${_SERVER['REMOTE_ADDR']}\t${_SERVER['HTTP_USER_AGENT']}\n", 3,
-        'var/access.log');
+    $f_log = 'var/log/';
+    if (!is_dir($f_log) || !is_readable($f_log))
+        exit();
+    $f_log .= $_SERVER['REMOTE_ADDR'] . '@' . date('Y-m-d', $_SERVER['REQUEST_TIME']) . '.log';
+    $a_headers = array('Date: ' . gmdate('D, d M Y H:i:s T', $_SERVER['REQUEST_TIME']));
+    reset($_SERVER);
+    for ($ii = 0, $jj = count($_SERVER); $ii < $jj; $ii++)
+    {
+        list($kk, $ll) = each($_SERVER);
+        if ('HTTP_' != substr($kk, 0, 5))
+            continue;
+        $a_headers[] = ucwords(strtolower(str_replace('_', '-', substr($kk, 5)))) . ': ' . $ll;
+    }
+    $s_msg = "GET {$_SERVER['REQUEST_URI']} {$_SERVER['SERVER_PROTOCOL']}\n" . implode("\n", $a_headers) .
+        "\n-------- {$code} ------\n" . implode("\n", headers_list()) . "\n\n";
+    @error_log($s_msg, 3, $f_log);
     exit();
 }
 
