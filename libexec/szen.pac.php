@@ -105,12 +105,9 @@ $a_opts = array_combine(array('host', 'port', 'type'), $a_opts);
 // Detects either `SOCKS' or `SOCKS5' for socks5 proxies. {{{1
 
 if ('SOCKS' == $a_opts['type'])
-{
-    if (strpos($_SERVER['HTTP_USER_AGENT'], ' Chrome/') ||
-        strpos($_SERVER['HTTP_USER_AGENT'], ' Chromium/') ||
-        strpos($_SERVER['HTTP_USER_AGENT'], ' Firefox/'))
-        $a_opts['type'] = 'SOCKS5';
-}
+    $a_opts['proxy'] = "SOCKS5 {$a_opts['host']}:{$a_opts['port']}; SOCKS {$a_opts['host']}:{$a_opts['port']}; DIRECT";
+else
+    $a_opts['proxy'] = "PROXY {$a_opts['host']}:{$a_opts['port']}; DIRECT";
 
 // Prepares response blob. {{{1
 
@@ -120,7 +117,7 @@ if (false == $s__)
     header('Status: 500 Internal Server Error', true, 500);
     my_exit(500);
 }
-$s__ = "_='{$a_opts['type']} {$a_opts['host']}:{$a_opts['port']}';{$s__}";
+$s__ = "_='{$a_opts['proxy']}';{$s__}";
 ob_end_clean();
 if (isset($_SERVER['HTTP_ACCEPT_ENCODING']))
 {
@@ -152,8 +149,8 @@ if (isset($_SERVER['HTTP_ACCEPT_ENCODING']))
 
 // Normally responds. {{{1
 
-//header('Content-Type: application/x-ns-proxy-autoconfig');
-header('Content-Type: text/javascript');
+header('Content-Type: application/x-ns-proxy-autoconfig');
+//header('Content-Type: text/javascript');
 header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $i_time));
 if ('' != $s_etag)
     header('ETag: ' . $s_etag);
