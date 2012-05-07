@@ -41,20 +41,6 @@ catch (Exception $ex)
     exit(1);
 }
 
-function rot47($clob)
-{
-    settype($clob, 'string');
-    for ($ii = 0, $jj = strlen($clob); $ii < $jj; $ii++)
-    {
-        $kk = ord($clob[$ii]);
-        if (32 < $kk && $kk < 80)
-            $clob[$ii] = chr(47 + $kk);
-        elseif (79 < $kk && $kk < 127)
-            $clob[$ii] = chr($kk - 47);
-    }
-    return $clob;
-}
-
 function merge_hosts($array)
 {
     settype($array, 'array');
@@ -114,15 +100,12 @@ function parse_gfwlists($file)
         'http:' . merge_urls($a_all['url']['http']) . '}}';
     trace('config: ' . $config, 3);
 
-    $f_rot = 'share/rot47.js';
     $f_tpl = 'share/proxy.pac';
-    if (!is_file($f_rot) || !is_readable($f_rot))
-        throw new Exception(sprintf('Template `%s\' access denied.', $f_rot));
     if (!is_file($f_tpl) || !is_readable($f_tpl))
         throw new Exception(sprintf('Template `%s\' access denied.', $f_tpl));
     ob_start();
     require $f_tpl;
-    $s_pac = trim(file_get_contents($f_rot)) . 'eval($$(\'' . addcslashes(rot47(trim(ob_get_clean())), '\'\\') . "'))";
+    $s_pac = trim(ob_get_clean());
     if (!file_put_contents($f_pac, $s_pac, LOCK_EX))
         throw new Exception('Failed to write PAC.');
     if (!file_put_contents($f_hash, md5($s_pac), LOCK_EX))
