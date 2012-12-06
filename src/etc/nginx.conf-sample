@@ -20,7 +20,7 @@
 # @copyright © 2012 snakevil.in
 # @license   http://www.gnu.org/licenses/gpl.html
 
-location ~ ^/szen.*\.pac$ {
+location ~ ^/szen.*\.js$ {
     error_log       /var/log/nginx/szen.pac-error.log;
 
     gzip            off;

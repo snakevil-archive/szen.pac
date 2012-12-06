@@ -64,7 +64,7 @@ vim *<SZEN.PAC Directory>*/etc/gfwlist.txt
 
 1. Copy the content of `<SZEN.PAC Directory>/etc/nginx.conf-sample` into `<NginX
    Config Directory>/nginx.conf`
-2. Change the `szen` in `location ~ ^/szen.*\.pac$` to any wished chars
+2. Change the `szen` in `location ~ ^/szen.*\.js$` to any wished chars
 3. `sudo nginx -t && sudo nginx -s reload`
 
 <!-- vim: se ft=markdown fenc=utf-8 ff=unix tw=80 noet nonu: -->

@@ -33,7 +33,7 @@
 
 ## USAGE
 
-You SHOULD access the provided online PAC via "/szen\*.pac". For full syntax
+You SHOULD access the provided online PAC via "/szen\*.js". For full syntax
 information, PLEASE read forms in [Backus-Naur Form](#EBNF). For quick guide,
 PLEASE read [samples](#Samples).
 
@@ -41,7 +41,7 @@ PLEASE read [samples](#Samples).
 ### BACKUS-NAUR FORM
 
 ```
-pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".pac"
+pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".js"
 
 proxy-address      =    "-" [ proxy-host ] [ proxy-port ]
 
@@ -59,27 +59,29 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 ### a) SIMPLE
 
-> /szen.pac
+> /szen.js
 
 **HTTP** proxy from **127.0.0.1 : 8080** used;
 
-> /szen-1234.pac
-> /szen-:1234.pac
+> /szen-1234.js
+
+> /szen-:1234.js
 
 **HTTP** proxy from **127.0.0.1 : 1234** used;
 
-> /szen-10.11.12.13.pac
+> /szen-10.11.12.13.js
 
 **HTTP** proxy from **10.11.12.13 : 8080** used;
 
-> /szen!.pac
-> /szen!socks.pac
+> /szen!.js
+
+> /szen!socks.js
 
 **SOCKS** proxy from **127.0.0.1 : 8080** used.
 
 ### b) COMPLEX
 
-> /szen-10.11.12.13:1415!.pac
+> /szen-10.11.12.13:1415!.js
 
 **SOCKS** proxy from **10.11.12.13 : 1415** used.
 

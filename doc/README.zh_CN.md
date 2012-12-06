@@ -32,7 +32,7 @@
 
 ## 使用
 
-本程序所提供的在线 PAC 文件访问地址，始终符合 /szen\*.pac 的地址格式。具体的格
+本程序所提供的在线 PAC 文件访问地址，始终符合 /szen\*.js 的地址格式。具体的格
 式规范，您可以通过阅读 [巴克斯范式](#EBNF) 以得到完整的理解；也可以直接对比 [范例
 ](#Samples) 快速拼装出符合您需要的地址。
 
@@ -40,7 +40,7 @@
 ### 巴克斯范式
 
 ```
-pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".pac"
+pac-uri	           =    "/szen" [ proxy-address ] [ socks-indicator ] ".js"
 
 proxy-address      =    "-" [ proxy-host ] [ proxy-port ]
 
@@ -58,27 +58,29 @@ socks-indicator    =    "!" / "!s" / "!socks"
 
 ### A. 简单范例
 
-> /szen.pac
+> /szen.js
 
 使用 **127.0.0.1 : 8080** 的 **HTTP** 代理；
 
-> /szen-1234.pac
-> /szen-:1234.pac
+> /szen-1234.js
+
+> /szen-:1234.js
 
 使用 **127.0.0.1 : 1234** 的 **HTTP** 代理；
 
-> /szen-10.11.12.13.pac
+> /szen-10.11.12.13.js
 
 使用 **10.11.12.13 : 8080** 的 **HTTP** 代理；
 
-> /szen!.pac
-> /szen!socks.pac
+> /szen!.js
+
+> /szen!socks.js
 
 使用 **127.0.0.1 : 8080** 的 **SOCKS** 代理。
 
 ### B. 组合范例
 
-> /szen-10.11.12.13:1415!.pac
+> /szen-10.11.12.13:1415!.js
 
 使用 **10.11.12.13 : 1415** 的 **SOCKS** 代理。
 

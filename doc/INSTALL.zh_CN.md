@@ -62,7 +62,7 @@ vim *『SZEN.PAC 目录路径』*/etc/gfwlist.txt
 
 1. 将`『SZEN.PAC 目录路径』/etc/nginx.conf-sample`文件内容复制到`『NginX 配置
    目录路径』/nginx.conf`文件中；
-2. 修改`location ~ ^/szen.*\.pac$`中的`szen`单词为任意期望的内容；
+2. 修改`location ~ ^/szen.*\.js$`中的`szen`单词为任意期望的内容；
 3. `sudo nginx -t && sudo nginx -s reload`。
 
 <!-- vim: se ft=markdown fenc=utf-8 ff=unix tw=80 noet nonu: -->
