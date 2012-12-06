@@ -2,7 +2,7 @@
 
 为 Linux / PHP 设计，推荐采用 NginX / PHP-FPM 提供生产服务。
 
-**【注意】** 请确保搭载此程序的服务器已在墙外！
+_【注意】 请确保搭载此程序的服务器已在墙外！_
 
 ## 依赖
 
@@ -12,57 +12,60 @@
 
 ## 安装
 
+假定程序会部署到默认的`/var/www`目录。
+
 ### A. 下载
 
 ```shell
-git clone git://github.com/snakevil/szen.pac.git
+cd /var/www
+git clone git://github.com/snakevil/szen.pac.git szen.pac.git
 ```
 
 ### B. 权限调整
 
 ```shell
-mkdir -p *『SZEN.PAC 目录路径』*/var/cache
-chmod -R g+w,g+s *『SZEN.PAC 目录路径』*/var
+cd /var/www/szen.pac.git/src
+chmod -R g+w,g+s var
 ```
 
-【提示】使www-data帐号具备`var`目录的写权限。
+_【注意】使`www-data`帐号具备`var`目录的写权限。_
 
 ### C. 创建定时器
 
 ```shell
-crontab -e
+sudo ln -s /var/www/szen.pac.git/src/etc/cron.d/szen.pac /etc/cron.d/
 ```
 
-> */30 * * * * *『SZEN.PAC 目录路径』*/bin/update >> *『SZEN.PAC 目录路径』*/var/update.log 2>&1
+_【注意】如果部署目录并非`/var/www`，那么还需要对`src/etc/cron.d/szen.pac`任务
+做相应的修改。_
 
-**【注意】** 建议执行间隔时间设置为30分钟，以确保 GFWList 的实时性。
-
-### D. 创建站点目录
+### D. 创建 NginX 站点
 
 ```shell
-vim *『NginX 配置目录路径』*/nginx.conf
+sudo ln -s /var/www/szen.pac.git/src/etc/nginx/szen.pac.conf /etc/nginx/sites-enabled/
 sudo nginx -t && sudo nginx -s reload
 ```
 
-在相应的站点`server{}`块内添加：
+_【注意】如果部署目录并非`/var/www`，那么还需要对`src/etc/nginx/szen.pac.conf`
+配置文件做相应的修改。_
 
-> include *『SZEN.PAC 目录路径』*/etc/nginx.conf-sample;
+_【警告】如果`NginX`站点配置文件目录不再是`/etc/nginx/sites-enabled`，请调整执行
+指令。_
 
 ## 定制
 
 ### A. 添加自己的GFWList规则
 
 ```shell
-vim *『SZEN.PAC 目录路径』*/etc/gfwlist.txt
+vim /var/www/szen.pac.git/src/etc/gfwlist.txt
 ```
 
-【提示】 如对该文件格式存在疑问，请阅读同目录下的`gfwlist.txt-sample`文件。
+_【提示】 如对该文件格式存在疑问，请阅读同目录下的`gfwlist.txt-sample`文件。_
 
 ### B. 更改PAC的访问地址
 
-1. 将`『SZEN.PAC 目录路径』/etc/nginx.conf-sample`文件内容复制到`『NginX 配置
-   目录路径』/nginx.conf`文件中；
-2. 修改`location ~ ^/szen.*\.js$`中的`szen`单词为任意期望的内容；
+1. 编辑`src/etc/nginx/szen.pac.conf`配置文件；
+2. 修改`location ~ ^/szen.\*\.js$`中的`szen`单词为任意期望的内容；
 3. `sudo nginx -t && sudo nginx -s reload`。
 
 <!-- vim: se ft=markdown fenc=utf-8 ff=unix tw=80 noet nonu: -->

@@ -2,7 +2,7 @@
 
 DESIGNED for Linux / PHP. NginX / PHP-FPM RECOMMENDED!
 
-**NOTICE** An Abroad server is NECESSARY!
+_NOTICE An abroad server is REQUIRED!_
 
 ## DEPENDENCIES
 
@@ -12,59 +12,62 @@ DESIGNED for Linux / PHP. NginX / PHP-FPM RECOMMENDED!
 
 ## INSTALLATION
 
+Expected the program would be distributed to the folder `/var/www` as default.
+
 ### A. Download
 
 ```shell
-git clone git://github.com/snakevil/szen.pac.git
+cd /var/www
+git clone git://github.com/snakevil/szen.pac.git szen.pac.git
 ```
 
 ### B. Grant Permissions
 
 ```shell
-mkdir -p *<SZEN.PAC Directory>*/var/cache
-chmod -R g+w,g+s *<SZEN.PAC Directory>*/var
+cd /var/www/szen.pac.git/src
+chmod -R g+w,g+s var
 ```
 
-*TIP* To allow www-data account writing in `var` folder.
+_NOTICE To allow `www-data` account writable into the `var` folder._
 
 ### C. Make New Cron Job
 
 ```shell
-crontab -e
+sudo ln -s /var/www/szen.pac.git/src/etc/cron.d/szen.pac /etc/cron.d/
 ```
 
-> */30 * * * * *<SZEN.PAC Directory>*/bin/update >> *<SZEN.PAC Directory>*/var/update.log 2>&1
+_NOTICE Please modify the cron task `src/etc/cron.d/szen.pac` for a different
+distribution folder rather than `/var/www`._
 
-**NOTICE** Its highly recommended to set the interval time to 30 minutes, for
-the accuracy of GFWList.
-
-### D. Serve Location
+### D. Build NginX Server
 
 ```shell
-vim *<NginX Config Directory>*/nginx.conf
+sudo ln -s /var/www/szen.pac.git/src/etc/nginx/szen.pac.conf /etc/nginx/sites-enabled/
 sudo nginx -t && sudo nginx -s reload
 ```
 
-In the corresponding `server{}` block, add the following line:
+_NOTICE Please modify the configuration `src/etc/nginx/szen.pac.conf` for a
+different distribution folder rather than `/var/www`._
 
-> include *<SZEN.PAC Directory>*/etc/nginx.conf-sample;
+_WARNING Please change the execution commands while `NginX` servers
+configuration folders been moved from `/etc/nginx/sites-enabled` to any other
+places._
 
 ## CUSTOMIZATION
 
 ### A. Add Own GFWList Rules
 
 ```shell
-vim *<SZEN.PAC Directory>*/etc/gfwlist.txt
+vim /var/www/szen.pac.git/src/etc/gfwlist.txt
 ```
 
-*TIP* For more information about the forms of rules, please read
-`gfwlist.txt-sample`.
+_TIP For more information about the forms of rules, please read
+`gfwlist.txt-sample`._
 
 ### B. Change PAC Address
 
-1. Copy the content of `<SZEN.PAC Directory>/etc/nginx.conf-sample` into `<NginX
-   Config Directory>/nginx.conf`
-2. Change the `szen` in `location ~ ^/szen.*\.js$` to any wished chars
-3. `sudo nginx -t && sudo nginx -s reload`
+1. Edit the configuration `src/etc/nginx/szen.pac.conf`,
+2. Change the `szen` in `location ~ ^/szen.\*\.js$` to any phrase as you like,
+3. `sudo nginx -t && sudo nginx -s reload`.
 
 <!-- vim: se ft=markdown fenc=utf-8 ff=unix tw=80 noet nonu: -->
