@@ -24,7 +24,7 @@
 	* [DEFLATE][] / [Gzip][]
 		* 75% OFF from uncompressed file
 
-![Data Flow Diagram](https://github.com/snakevil/szen.pac/raw/master/share/doc/DFD.png)
+![Data Flow Diagram](https://github.com/snakevil/szen.pac/raw/master/src/share/doc/DFD.png)
 
 ## INSTALL
 
@@ -87,6 +87,6 @@ socks-indicator    =    "!" / "!s" / "!socks"
 [autoproxy2pac]: https://autoproxy2pac.appspot.com/
 [DEFLATE]: http://en.wikipedia.org/wiki/DEFLATE
 [Gzip]: http://en.wikipedia.org/wiki/Gzip
-[INSTALL]: https://github.com/snakevil/szen.pac/blob/master/INSTALL.en.md
+[INSTALL]: https://github.com/snakevil/szen.pac/blob/master/doc/INSTALL.en.md
 
 <!-- vim: se ft=markdown fenc=utf-8 ff=unix tw=80 noet nonu: -->

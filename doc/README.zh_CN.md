@@ -24,7 +24,7 @@
 	* 自动采用 [DEFLATE][] / [Gzip][] 压缩文件
 		* 比未压缩时节省近 75% 流量
 
-![数据流图](https://github.com/snakevil/szen.pac/raw/master/share/doc/DFD.png)
+![数据流图](https://github.com/snakevil/szen.pac/raw/master/src/share/doc/DFD.png)
 
 ## 安装
 
@@ -86,6 +86,6 @@ socks-indicator    =    "!" / "!s" / "!socks"
 [autoproxy2pac]: https://autoproxy2pac.appspot.com/
 [DEFLATE]: http://zh.wikipedia.org/wiki/DEFLATE
 [Gzip]: http://zh.wikipedia.org/wiki/Gzip
-[INSTALL]: https://github.com/snakevil/szen.pac/blob/master/INSTALL.zh_CN.md
+[INSTALL]: https://github.com/snakevil/szen.pac/blob/master/doc/INSTALL.zh_CN.md
 
 <!-- vim: se ft=markdown fenc=utf-8 ff=unix tw=80 noet nonu: -->

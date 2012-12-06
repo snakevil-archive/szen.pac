@@ -1,1 +1,1 @@
-INSTALL.zh_CN.md
+doc/INSTALL.zh_CN.md
